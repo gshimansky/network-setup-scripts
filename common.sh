@@ -4,6 +4,7 @@ DPDK_DIR="${NFF_GO}"/dpdk/dpdk-${DPDK_VERSION}
 
 bindports ()
 {
+    echo BINDING CARDS ${@}
     if ! lsmod | grep -q igb_uio; then
         sudo modprobe uio
         sudo insmod ${DPDK_DIR}/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
@@ -13,62 +14,91 @@ bindports ()
 
 unbindports ()
 {
+    echo UNBINDING CARDS ${@}
     sudo ${DPDK_DIR}/usertools/dpdk-devbind.py --bind=${LINUX_DRIVER} ${@}
 }
 
 disconnect_interfaces()
 {
+    echo DISCONNECTING CARDS ${@}
     sudo nmcli d disconnect ${@}
 }
 
-setup_interface()
+clean_trash()
 {
-    while sudo nmcli c del $1-nff-go
+    i=1
+    while sudo nmcli c del "Wired connection ${i}" &> /dev/null
     do
-        true
+        echo Deleted network configuration "Wired connection ${i}"
+        i=$((i+1))
+    done
+}
+
+add_network_config()
+{
+    echo ADDING CONFIG FOR $1 with netmask $2
+    while sudo nmcli c del $1-nff-go &> /dev/null
+    do
+        echo Deleted network configuration $1-nff-go
     done
     sudo nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
-    sudo nmcli d connect $1
+}
+
+bring_up_interface()
+{
+    echo BRINGING UP INTERFACE $1
     sudo nmcli c up $1-nff-go
+}
+
+setup_route()
+{
+    echo SETTING UP ROUTE TO $1 VIA $2 USING $3
+    sudo ip route add $1 via $2 dev $3
 }
 
 establish_forwarding()
 {
-    if ! sudo iptables -t nat -C POSTROUTING -o $1 -j MASQUERADE
+    echo SETTING UP FORWARDING FROM $1 TO $2
+    if ! sudo iptables -t nat -C POSTROUTING -o $2 -j MASQUERADE
     then
-        sudo iptables -t nat -A POSTROUTING -o $1 -j MASQUERADE
+        sudo iptables -t nat -A POSTROUTING -o $2 -j MASQUERADE
     fi
-    if ! sudo iptables -C FORWARD -i $1 -o $0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    if ! sudo iptables -C FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
     then
-        sudo iptables -A FORWARD -i $1 -o $0 -m state --state RELATED,ESTABLISHED -j ACCEPT
+        sudo iptables -A FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
     fi
-    if ! sudo iptables -C FORWARD -i $0 -o $1 -j ACCEPT
+    if ! sudo iptables -C FORWARD -i $1 -o $2 -j ACCEPT
     then
-        sudo iptables -A FORWARD -i $0 -o $1 -j ACCEPT
+        sudo iptables -A FORWARD -i $1 -o $2 -j ACCEPT
     fi
 }
 
 # Configure DPDK interfaces
-if [ ! -z ${DPDK_CARD_NAMES[*]} ]
+if [ ! -z "${DPDK_CARD_NAMES[*]}" ] && [ ! -z "${DPDK_CARD_IDS[*]}" ]
 then
     disconnect_interfaces ${DPDK_CARD_NAMES[*]}
     bindports ${DPDK_CARD_IDS[*]}
 fi
 
 # Configure linux interfaces
-if [ ! -z ${LINUX_CARD_IDS[*]} ]
+if [ ! -z "${LINUX_CARD_IDS[*]}" ] && [ ! -z "${#LINUX_CARD_NAMES[*]}" ] && [ ! -z "${LINUX_NETMASKS[$i]}" ]
 then
-    unbindports ${LINUX_CARD_IDS[*]}
+    clean_trash
     for (( i=0; i<${#LINUX_CARD_NAMES[*]}; i++ ))
     do
-        setup_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]}
+        add_network_config ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]}
+        unbindports ${LINUX_CARD_IDS[$i]}
+        bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]}
     done
-    for (( i=0; i<${#LINUX_ROUTE_NETWORKS[*]}; i++ ))
-    do
-        setup_route ${LINUX_ROUTE_NETWORKS[$i]} ${LINUX_ROUTE_VIA[$i]}
-    done
+    if [ ! -z "${LINUX_ROUTE_NETWORKS[*]}" ] && [ ! -z "${LINUX_ROUTE_VIA[*]}" ]
+    then
+        for (( i=0; i<${#LINUX_ROUTE_NETWORKS[*]}; i++ ))
+        do
+            setup_route ${LINUX_ROUTE_NETWORKS[$i]} ${LINUX_ROUTE_VIA[$i]} ${LINUX_CARD_NAMES[$i]}
+        done
+    fi
 fi
-if [ ! -z ${LINUX_FIREWALL} ] && (( ${#LINUX_CARD_NAMES[*]} == 2 ))
+if [ ! -z "${LINUX_FIREWALL}" ] && (( ${#LINUX_CARD_NAMES[*]} == 2 ))
 then
     establish_forwarding ${LINUX_CARD_NAMES[0]} ${LINUX_CARD_NAMES[1]}
 fi
