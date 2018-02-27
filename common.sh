@@ -34,13 +34,19 @@ clean_trash()
     done
 }
 
+wipe_config()
+{
+    while sudo nmcli c del $1 &> /dev/null
+    do
+        echo Deleted network configuration $1
+    done
+}
+
 add_network_config()
 {
     echo ADDING CONFIG FOR $1 with netmask $2
-    while sudo nmcli c del $1-nff-go &> /dev/null
-    do
-        echo Deleted network configuration $1-nff-go
-    done
+    wipe_config $1
+    wipe_config $1-nff-go
     sudo nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
 }
 
