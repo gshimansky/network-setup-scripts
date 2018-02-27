@@ -96,6 +96,7 @@ then
         unbindports ${LINUX_CARD_IDS[$i]}
         bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]}
     done
+    clean_trash
     if [ ! -z "${LINUX_ROUTE_NETWORKS[*]}" ] && [ ! -z "${LINUX_ROUTE_VIA[*]}" ]
     then
         for (( i=0; i<${#LINUX_ROUTE_NETWORKS[*]}; i++ ))
