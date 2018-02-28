@@ -1,7 +1,5 @@
 #!/bin/bash
 
-DPDK_DIR="${NFF_GO}"/dpdk/dpdk-${DPDK_VERSION}
-
 check_env()
 {
     if [ -z "${NFF_GO}" ]
@@ -31,8 +29,7 @@ disconnect_interfaces()
 {
     echo DISCONNECTING CARDS ${@}
     sudo nmcli d disconnect ${@}
-    wipe_config $1
-    wipe_config $1-nff-go
+    wipe_configs ${@}
 }
 
 clean_trash()
@@ -45,19 +42,21 @@ clean_trash()
     done
 }
 
-wipe_config()
+wipe_configs()
 {
-    while sudo nmcli c del $1 &> /dev/null
+    for config in "${@}"
     do
-        echo Deleted network configuration $1
+        while sudo nmcli c del "$config" &> /dev/null
+        do
+            echo Deleted network configuration "$config"
+        done
     done
 }
 
 add_network_config()
 {
     echo ADDING CONFIG FOR $1 with netmask $2
-    wipe_config $1
-    wipe_config $1-nff-go
+    wipe_configs $1 $1-nff-go
     sudo nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
 }
 
@@ -90,13 +89,32 @@ establish_forwarding()
     fi
 }
 
+# Check arguments
 check_env
+
+if [ "$#" -ne 1 ]
+then
+    echo Usage: reconfigure.sh \<config file\>
+    exit 2
+fi
+
+# Read config
+if [ -f "$1" ]
+then
+   . "$1"
+else
+    echo Config file "$1" does not exist
+    exit 3
+fi
+
+DPDK_DIR="${NFF_GO}/dpdk/dpdk-${DPDK_VERSION}"
 
 # Configure DPDK interfaces
 if [ ! -z "${DPDK_CARD_NAMES[*]}" ] && [ ! -z "${DPDK_CARD_IDS[*]}" ]
 then
     disconnect_interfaces ${DPDK_CARD_NAMES[*]}
     bindports ${DPDK_CARD_IDS[*]}
+    clean_trash
 fi
 
 # Configure linux interfaces
