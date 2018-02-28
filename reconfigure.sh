@@ -2,9 +2,13 @@
 
 check_env()
 {
+    if [[ $EUID -ne 0 ]]; then
+        echo "This script must be run as root. Use sudo -E reconfigre.sh to run it."
+        exit 1
+    fi
     if [ -z "${NFF_GO}" ]
     then
-        echo You need to define NFF_GO variable which points to root of built NFF_GO repository
+        echo "You need to define NFF_GO variable which points to root of built NFF_GO repository."
         exit 1
     fi
 }
@@ -13,31 +17,31 @@ bindports ()
 {
     echo BINDING CARDS ${@}
     if ! lsmod | grep -q igb_uio; then
-        sudo modprobe uio
-        sudo insmod ${DPDK_DIR}/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
+        modprobe uio
+        insmod "${DPDK_DIR}"/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
     fi
-    sudo ${DPDK_DIR}/usertools/dpdk-devbind.py --bind=igb_uio ${@}
+    "${DPDK_DIR}"/usertools/dpdk-devbind.py --bind=igb_uio ${@}
 }
 
 unbindports ()
 {
     echo UNBINDING CARDS ${@}
-    sudo ${DPDK_DIR}/usertools/dpdk-devbind.py --bind=${LINUX_DRIVER} ${@}
+    "${DPDK_DIR}"/usertools/dpdk-devbind.py --bind="${LINUX_DRIVER}" ${@}
 }
 
 disconnect_interfaces()
 {
     echo DISCONNECTING CARDS ${@}
-    sudo nmcli d disconnect ${@}
+    nmcli d disconnect ${@}
     wipe_configs ${@}
 }
 
 clean_trash()
 {
     i=1
-    while sudo nmcli c del "Wired connection ${i}" &> /dev/null
+    while nmcli c del "Wired connection ${i}" &> /dev/null
     do
-        echo Deleted network configuration "Wired connection ${i}"
+        echo DELETED NETWORK CONFIGURATION "Wired connection ${i}"
         i=$((i+1))
     done
 }
@@ -46,9 +50,9 @@ wipe_configs()
 {
     for config in "${@}"
     do
-        while sudo nmcli c del "$config" &> /dev/null
+        while nmcli c del "$config" &> /dev/null
         do
-            echo Deleted network configuration "$config"
+            echo DELETED NETWORK CONFIGURATION "$config"
         done
     done
 }
@@ -57,35 +61,35 @@ add_network_config()
 {
     echo ADDING CONFIG FOR $1 with netmask $2
     wipe_configs $1 $1-nff-go
-    sudo nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
+    nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
 }
 
 bring_up_interface()
 {
     echo BRINGING UP INTERFACE $1
-    sudo nmcli c up $1-nff-go
+    nmcli c up $1-nff-go
 }
 
 setup_route()
 {
     echo SETTING UP ROUTE TO $1 VIA $2 USING $3
-    sudo ip route add $1 via $2 dev $3
+    ip route add $1 via $2 dev $3
 }
 
 establish_forwarding()
 {
     echo SETTING UP FORWARDING FROM $1 TO $2
-    if ! sudo iptables -t nat -C POSTROUTING -o $2 -j MASQUERADE
+    if ! iptables -t nat -C POSTROUTING -o $2 -j MASQUERADE
     then
-        sudo iptables -t nat -A POSTROUTING -o $2 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -o $2 -j MASQUERADE
     fi
-    if ! sudo iptables -C FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    if ! iptables -C FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
     then
-        sudo iptables -A FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+        iptables -A FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
     fi
-    if ! sudo iptables -C FORWARD -i $1 -o $2 -j ACCEPT
+    if ! iptables -C FORWARD -i $1 -o $2 -j ACCEPT
     then
-        sudo iptables -A FORWARD -i $1 -o $2 -j ACCEPT
+        iptables -A FORWARD -i $1 -o $2 -j ACCEPT
     fi
 }
 
