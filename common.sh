@@ -2,6 +2,15 @@
 
 DPDK_DIR="${NFF_GO}"/dpdk/dpdk-${DPDK_VERSION}
 
+check_env()
+{
+    if [ -z "${NFF_GO}" ]
+    then
+        echo You need to define NFF_GO variable which points to root of built NFF_GO repository
+        exit 1
+    fi
+}
+
 bindports ()
 {
     echo BINDING CARDS ${@}
@@ -22,6 +31,8 @@ disconnect_interfaces()
 {
     echo DISCONNECTING CARDS ${@}
     sudo nmcli d disconnect ${@}
+    wipe_config $1
+    wipe_config $1-nff-go
 }
 
 clean_trash()
@@ -78,6 +89,8 @@ establish_forwarding()
         sudo iptables -A FORWARD -i $1 -o $2 -j ACCEPT
     fi
 }
+
+check_env
 
 # Configure DPDK interfaces
 if [ ! -z "${DPDK_CARD_NAMES[*]}" ] && [ ! -z "${DPDK_CARD_IDS[*]}" ]
