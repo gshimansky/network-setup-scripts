@@ -8,6 +8,7 @@ export ftp_proxy=http://fmproxyslb.ice.intel.com:911
 export https_proxy=http://fmproxyslb.ice.intel.com:911
 export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
+
 sp0=2219
 sp1=2221
 sp2=2202
@@ -17,6 +18,7 @@ echo MACHINE 1
 ssh vagrant@localhost -p $sp1 -o LogLevel=FATAL -o Compression=yes -o DSAAuthentication=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile="/localdisk/tc_agent/vagrant/.vagrant/machines/tctestvms-1/virtualbox/private_key" sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/vm/nat/middle.sh
 echo MACHINE 2
 ssh vagrant@localhost -p $sp2 -o LogLevel=FATAL -o Compression=yes -o DSAAuthentication=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile="/localdisk/tc_agent/vagrant/.vagrant/machines/tctestvms-2/virtualbox/private_key" sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/vm/nat/server.sh
+
 dp0=2218
 dp1=2220
 dp2=2201
