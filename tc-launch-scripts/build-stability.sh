@@ -8,10 +8,9 @@ export ftp_proxy=http://fmproxyslb.ice.intel.com:911
 export https_proxy=http://fmproxyslb.ice.intel.com:911
 export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
+export VM_NAME=tctestvms
+export VM_TOTAL_NUMBER=3
 
-dp0=2200
-dp1=2201
-dp2=2203
-export NFF_GO_HOSTS=localhost:$dp0,localhost:$dp1,localhost:$dp2
+$(cd /localdisk/tc_agent/vagrant; ./getports.sh 2375)
 make -j16 cleanall
 make -j16 deploy
