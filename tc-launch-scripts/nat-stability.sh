@@ -15,7 +15,7 @@ $(cd /localdisk/tc_agent/vagrant; ./getports.sh 22)
 echo MACHINE 0
 ssh vagrant@localhost -p $sp0 -o LogLevel=FATAL -o Compression=yes -o DSAAuthentication=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile="/localdisk/tc_agent/vagrant/.vagrant/machines/tctestvms-0/virtualbox/private_key" sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/vm/nat/client.sh
 echo MACHINE 1
-ssh vagrant@localhost -p $sp1 -o LogLevel=FATAL -o Compression=yes -o DSAAuthentication=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile="/localdisk/tc_agent/vagrant/.vagrant/machines/tctestvms-1/virtualbox/private_key" sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/vm/nat/middle.sh
+ssh vagrant@localhost -p $sp1 -o LogLevel=FATAL -o Compression=yes -o DSAAuthentication=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile="/localdisk/tc_agent/vagrant/.vagrant/machines/tctestvms-1/virtualbox/private_key" sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/vm/dpdk/0809.sh
 echo MACHINE 2
 ssh vagrant@localhost -p $sp2 -o LogLevel=FATAL -o Compression=yes -o DSAAuthentication=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o IdentityFile="/localdisk/tc_agent/vagrant/.vagrant/machines/tctestvms-2/virtualbox/private_key" sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/vm/nat/server.sh
 
