@@ -33,7 +33,10 @@ disconnect_interfaces()
 {
     echo DISCONNECTING CARDS ${@}
     nmcli d disconnect ${@}
-    wipe_configs ${@}
+    for int in ${@}
+    do
+        wipe_configs $(nmcli c s | grep $int | cut -d" " -s -f1)
+    done
 }
 
 clean_trash()
@@ -59,21 +62,40 @@ wipe_configs()
 
 add_network_config()
 {
-    echo ADDING CONFIG FOR $1 with netmask $2
-    wipe_configs $1 $1-nff-go
-    nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
+    if [ -z "$3" ]
+    then
+        echo ADDING ETHERNET CONFIG FOR $1 WITH NETMASK $2
+        wipe_configs $1 $1-nff-go
+        nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
+    else
+        echo ADDING VLAN CONFIG FOR $1 WITH NETMASK $2 AND ID $3
+        wipe_configs $1-nff-go.$3
+        nmcli c add type vlan dev $1 con-name $1-nff-go.$3 ip4 $2 id $3
+    fi
 }
 
 bring_up_interface()
 {
-    echo BRINGING UP INTERFACE $1
-    nmcli c up $1-nff-go
+    if [ -z "$2" ]
+    then
+        name=$1-nff-go
+    else
+        name=$1-nff-go.$2
+    fi
+    echo BRINGING UP INTERFACE $name
+    nmcli c up $name
 }
 
 setup_route()
 {
-    echo SETTING UP ROUTE TO $1 VIA $2 USING $3
-    ip route add $1 via $2 dev $3
+    if [ -z "$4" ]
+    then
+        dev=$3
+    else
+        dev=$3.$4
+    fi
+    echo SETTING UP ROUTE TO $1 VIA $2 USING $dev
+    ip route add $1 via $2 dev $dev
 }
 
 establish_forwarding()
@@ -128,16 +150,19 @@ then
     clean_trash
     for (( i=0; i<${#LINUX_CARD_NAMES[*]}; i++ ))
     do
-        add_network_config ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]}
+        add_network_config ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]} ${LINUX_VLANS[$i]}
         unbindports ${LINUX_CARD_IDS[$i]}
-        bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]}
+        bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_VLANS[$i]}
     done
     clean_trash
     if [ ! -z "${LINUX_ROUTE_NETWORKS[*]}" ] && [ ! -z "${LINUX_ROUTE_VIA[*]}" ]
     then
         for (( i=0; i<${#LINUX_ROUTE_NETWORKS[*]}; i++ ))
         do
-            setup_route ${LINUX_ROUTE_NETWORKS[$i]} ${LINUX_ROUTE_VIA[$i]} ${LINUX_CARD_NAMES[$i]}
+            if [ ! -z ${LINUX_ROUTE_NETWORKS[$i]} ] && [ ! -z ${LINUX_ROUTE_VIA[$i]} ]
+            then
+                setup_route ${LINUX_ROUTE_NETWORKS[$i]} ${LINUX_ROUTE_VIA[$i]} ${LINUX_CARD_NAMES[$i]} ${LINUX_VLANS[$i]}
+            fi
         done
     fi
 fi
