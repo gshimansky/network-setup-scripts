@@ -70,7 +70,7 @@ add_network_config()
     else
         echo ADDING VLAN CONFIG FOR $1 WITH NETMASK $2 AND ID $3
         wipe_configs $1-nff-go.$3
-        nmcli c add type vlan dev $1 con-name $1-nff-go.$3 ip4 $2 id $3
+        nmcli c add type vlan dev $1 con-name $1-nff-go.$3 ip4 $2 id $3 mtu 1496
     fi
 }
 
