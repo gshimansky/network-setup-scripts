@@ -166,7 +166,17 @@ then
         done
     fi
 fi
-if [ ! -z "${LINUX_FIREWALL}" ] && (( ${#LINUX_CARD_NAMES[*]} == 2 ))
+if [ ! -z "${LINUX_FIREWALL}" ]
 then
-    establish_forwarding ${LINUX_CARD_NAMES[0]} ${LINUX_CARD_NAMES[1]}
+    if  (( ${#LINUX_CARD_NAMES[*]} == 2 ))
+    then
+        if [ -z "${LINUX_VLANS[*]}" ]
+        then
+            establish_forwarding ${LINUX_CARD_NAMES[0]} ${LINUX_CARD_NAMES[1]}
+        else
+            establish_forwarding ${LINUX_CARD_NAMES[0]}.${LINUX_VLANS[0]} ${LINUX_CARD_NAMES[1]}.${LINUX_VLANS[1]}
+        fi
+    else
+        echo LINUX_FIREWALL works only when LINUX_CARD_NAMES has two cards
+    fi
 fi
