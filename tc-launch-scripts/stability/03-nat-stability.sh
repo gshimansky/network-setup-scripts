@@ -13,11 +13,11 @@ export VM_TOTAL_NUMBER=3
 
 $(cd /localdisk/tc_agent/vagrant; ./getports.sh 22)
 echo MACHINE 0
-ssh -F $sc0 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/nat/client.sh
+ssh -F $sc0 tctestvms-0 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/nat/client.sh
 echo MACHINE 1
-ssh -F $sc1 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/nat/middle.sh
+ssh -F $sc1 tctestvms-1 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/nat/middle.sh
 echo MACHINE 2
-ssh -F $sc2 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/nat/server.sh
+ssh -F $sc2 tctestvms-2 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/nat/server.sh
 
 $(cd /localdisk/tc_agent/vagrant; ./getports.sh 2375)
 cd test/framework/main
