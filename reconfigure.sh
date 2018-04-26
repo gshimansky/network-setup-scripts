@@ -145,14 +145,20 @@ then
 fi
 
 # Configure linux interfaces
-if [ ! -z "${LINUX_CARD_IDS[*]}" ] && [ ! -z "${#LINUX_CARD_NAMES[*]}" ] && [ ! -z "${LINUX_NETMASKS[$i]}" ]
+if [ ! -z "${LINUX_CARD_IDS[*]}" ] && [ ! -z "${#LINUX_CARD_NAMES[*]}" ]
 then
     clean_trash
     for (( i=0; i<${#LINUX_CARD_NAMES[*]}; i++ ))
     do
-        add_network_config ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]} ${LINUX_VLANS[$i]}
+        if [ ! -z "${LINUX_NETMASKS[$i]}" ]
+        then
+            add_network_config ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]} ${LINUX_VLANS[$i]}
+        fi
         unbindports ${LINUX_CARD_IDS[$i]}
-        bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_VLANS[$i]}
+        if [ ! -z "${LINUX_NETMASKS[$i]}" ]
+        then
+            bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_VLANS[$i]}
+        fi
     done
     clean_trash
     if [ ! -z "${LINUX_ROUTE_NETWORKS[*]}" ] && [ ! -z "${LINUX_ROUTE_VIA[*]}" ]
