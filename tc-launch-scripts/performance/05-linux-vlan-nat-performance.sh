@@ -10,12 +10,12 @@ export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
 
 echo MACHINE 0
-ssh antsatel04.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/nat/antsatel04_client_40g.sh
+ssh antsatel04.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/nat/antsatel04_client_40g-vlan.sh
 echo MACHINE 1
-ssh antsatel05.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/40g.sh
+ssh antsatel05.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/nat/antsatel05_middle_40g-vlan.sh
 echo MACHINE 2
-ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/nat/antsatel06_server_40g.sh
+ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/nat/antsatel06_server_40g-vlan.sh
 
 export NFF_GO_HOSTS=antsatel04.an.intel.com:2375,antsatel05.an.intel.com:2375,antsatel06.an.intel.com:2375
 cd test/framework/main
-./tf -directory nat-perfresults -config nat/perf-nat.json -hosts $NFF_GO_HOSTS
+./tf -directory linux-vlan-perfresults -config nat/perf-nat-linux-vlan.json -hosts $NFF_GO_HOSTS

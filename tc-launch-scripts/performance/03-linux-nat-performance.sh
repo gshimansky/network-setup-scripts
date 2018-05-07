@@ -18,4 +18,4 @@ ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/re
 
 export NFF_GO_HOSTS=antsatel04.an.intel.com:2375,antsatel05.an.intel.com:2375,antsatel06.an.intel.com:2375
 cd test/framework/main
-./tf -directory iptables-perfresults -config perf-iptables.json -hosts $NFF_GO_HOSTS
+./tf -directory linux-perfresults -config nat/perf-nat-linux.json -hosts $NFF_GO_HOSTS
