@@ -21,4 +21,4 @@ ssh -F $sc2 tctestvms-2 sudo -E ./network-setup-scripts/reconfigure.sh ./network
 
 $(cd /localdisk/tc_agent/vagrant; ./getports.sh 2375)
 cd test/framework/main
-./tf -directory stabilityresults -config stability.json -hosts $NFF_GO_HOSTS
+./tf -directory stabilityresults -config stability-VM.json -hosts $NFF_GO_HOSTS
