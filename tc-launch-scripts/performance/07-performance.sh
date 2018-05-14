@@ -10,12 +10,12 @@ export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
 
 echo MACHINE 0
-ssh antsatel04.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/40g.sh
+ssh antsatel04.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/all.sh
 echo MACHINE 1
-ssh antsatel05.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/40g.sh
+ssh antsatel05.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/all.sh
 echo MACHINE 2
-ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/40g.sh
+ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/all.sh
 
-export NFF_GO_HOSTS=antsatel04.an.intel.com:2375,antsatel05.an.intel.com:2375,antsatel06.an.intel.com:2375
+export NFF_GO_HOSTS=antsatel05.an.intel.com:2375,antsatel04.an.intel.com:2375
 cd test/framework/main
-./tf -directory perfresults -config perf_one_port.json -hosts $NFF_GO_HOSTS
+./tf -directory perfresults -var INPORT1=1 -var OUTPORT1_1=1 -var OUTPORT1_2=1 -var PKTGENPORT=[1:2-3].0 -config perf.json -hosts $NFF_GO_HOSTS
