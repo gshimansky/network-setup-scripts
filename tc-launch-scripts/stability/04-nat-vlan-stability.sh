@@ -12,6 +12,9 @@ export VM_NAME=tctestvms
 export VM_TOTAL_NUMBER=3
 
 $(cd /localdisk/tc_agent/vagrant; ./getports.sh 22)
+rc=$?
+if [ $rc != 0 ]; then exit 1; fi
+
 echo MACHINE 0
 ssh -F $sc0 tctestvms-0 sudo -E ./network-setup-scripts/reconfigure.sh ./network-setup-scripts/lv/e1000/vlan-nat/client.sh
 echo MACHINE 1
