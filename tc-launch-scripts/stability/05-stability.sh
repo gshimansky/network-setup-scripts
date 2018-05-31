@@ -24,4 +24,4 @@ ssh -F $sc2 tctestvms-2 sudo -E ./network-setup-scripts/reconfigure.sh ./network
 
 $(cd /localdisk/tc_agent/vagrant; ./getports.sh 2375)
 cd test/framework/main
-./tf -directory stabilityresults -var SPEED=5000 -var NUMBER=50000 -var VB_WORKAROUND=-virtualbox-workaround -var KVM_WORKAROUND=-kvm-workaround -config stability.json -hosts $NFF_GO_HOSTS
+./tf -directory stabilityresults -var KVM_WORKAROUND=-kvm-workaround -config stability.json -hosts $NFF_GO_HOSTS
