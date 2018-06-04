@@ -145,7 +145,7 @@ then
 fi
 
 # Configure linux interfaces
-if [ ! -z "${LINUX_CARD_IDS[*]}" ] && [ ! -z "${#LINUX_CARD_NAMES[*]}" ]
+if [ ! -z "${LINUX_CARD_IDS[*]}" ] && [ ! -z "${#LINUX_CARD_NAMES[*]}" ] && [ ! -z "${LINUX_DRIVER}" ]
 then
     clean_trash
     for (( i=0; i<${#LINUX_CARD_NAMES[*]}; i++ ))
