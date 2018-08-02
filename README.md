@@ -1,5 +1,11 @@
 # network-setup-scripts
-Scripts used to setup performance tests of NFF-Go on various lab machines
+Scripts used to setup performance tests of NFF-Go on various lab
+machines. Use it like this:
+```
+$ sudo -E ./reconfigure.sh ./lv/virtio/nat/client.sh
+```
+Required environenment variables is `NFF_GO` which should point to
+NFF-Go repository root with built DPDK.
 
 ## Configuration files syntax
 
