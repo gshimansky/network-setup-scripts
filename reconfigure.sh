@@ -11,6 +11,11 @@ check_env()
         echo "You need to define NFF_GO variable which points to root of built NFF_GO repository."
         exit 1
     fi
+    if [ -z "${DPDK_VERSION}" ]
+    then
+        echo "You need to define DPDK_VERSION variable with DPDK version that should be used to find DPDK modules and scripts."
+        exit 1
+    fi
 }
 
 bindports ()

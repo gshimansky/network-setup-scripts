@@ -1,6 +1,5 @@
 #!/bin/bash
 
-DPDK_VERSION=18.02
 DPDK_CARD_IDS=(06:00.0 06:00.1)
 DPDK_CARD_NAMES=(ens785f0 ens785f1)
 

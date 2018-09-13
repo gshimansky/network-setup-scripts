@@ -1,6 +1,5 @@
 #!/bin/bash
 
-DPDK_VERSION=18.02
 DPDK_CARD_IDS=
 DPDK_CARD_NAMES=
 
