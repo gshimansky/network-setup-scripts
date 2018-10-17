@@ -17,5 +17,4 @@ echo MACHINE 2
 ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/nat/antsatel06_server_40g-vlan.sh
 
 export NFF_GO_HOSTS=antsatel04.an.intel.com:2375,antsatel05.an.intel.com:2375,antsatel06.an.intel.com:2375
-cd test/framework/main
-./tf -directory nat-vlan-perfresults -config nat/perf-nat-vlan.json -hosts $NFF_GO_HOSTS
+make test-performance-vlan
