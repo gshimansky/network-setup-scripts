@@ -67,16 +67,51 @@ wipe_configs()
 
 add_network_config()
 {
-    if [ -z "$3" ]
+    cardname=$1
+    ipv4=$2
+    ipv6=$3
+    vlantag=$4
+    route4=$5
+    via4=$6
+    route6=$7
+    via6=$8
+
+    if [ ! -z "${ipv4}" ]
     then
-        echo ADDING ETHERNET CONFIG FOR $1 WITH NETMASK $2
-        wipe_configs $1 $1-nff-go
-        nmcli c add type ethernet ifname $1 con-name $1-nff-go ip4 $2
-    else
-        echo ADDING VLAN CONFIG FOR $1 WITH NETMASK $2 AND ID $3
-        wipe_configs $1-nff-go.$3
-        nmcli c add type vlan dev $1 con-name $1-nff-go.$3 ip4 $2 id $3 mtu 1496
+        IPv4_ADDR="ip4 ${ipv4}"
+        MSG=" WITH NETMASK ${ipv4}"
     fi
+
+    if [ ! -z "${ipv6}" ]
+    then
+        IPv6_ADDR="ip6 ${ipv6}"
+        MSG="${MSG} WITH V6 NETMASK ${ipv6}"
+    fi
+
+    if [ -z "${vlantag}" ]
+    then
+        WIPE="${cardname} ${cardname}-nff-go"
+        CONNAME="${cardname}-nff-go"
+    else
+        WIPE="${cardname}-nff-go.${vlantag}"
+        CONNAME="${cardname}-nff-go.${vlantag}"
+        MSG="${MSG} AND ID ${vlantag}"
+        MTU="mtu 1496"
+    fi
+
+    if [ ! -z "${route4}" ] && [ ! -z "${via4}" ]
+    then
+        ROUTE4="ipv4.routes \"${route4} ${via4}\""
+    fi
+
+    if [ ! -z "${route6}" ] && [ ! -z "${via6}" ]
+    then
+        ROUTE6="ipv6.routes \"${route6} ${via6}\""
+    fi
+
+    echo ADDING ETHERNET CONFIG FOR ${cardname} ${MSG}
+    wipe_configs ${WIPE}
+    eval nmcli c add type ethernet ifname ${cardname} con-name ${CONNAME} ${IPv4_ADDR} ${IPv6_ADDR} "${ROUTE4}" "${ROUTE6}" ${MTU}
 }
 
 bring_up_interface()
@@ -157,25 +192,15 @@ then
     do
         if [ ! -z "${LINUX_NETMASKS[$i]}" ]
         then
-            add_network_config ${LINUX_CARD_NAMES[$i]} ${LINUX_NETMASKS[$i]} ${LINUX_VLANS[$i]}
+            add_network_config "${LINUX_CARD_NAMES[$i]}" "${LINUX_NETMASKS[$i]}" "${LINUX_NETMASKS_V6[$i]}" "${LINUX_VLANS[$i]}" "${LINUX_ROUTE_NETWORKS[$i]}" "${LINUX_ROUTE_VIA[$i]}" "${LINUX_ROUTE_NETWORKS_V6[$i]}" "${LINUX_ROUTE_VIA_V6[$i]}"
         fi
         unbindports ${LINUX_CARD_IDS[$i]}
         if [ ! -z "${LINUX_NETMASKS[$i]}" ]
         then
-            bring_up_interface ${LINUX_CARD_NAMES[$i]} ${LINUX_VLANS[$i]}
+            bring_up_interface "${LINUX_CARD_NAMES[$i]}" "${LINUX_VLANS[$i]}"
         fi
     done
     clean_trash
-    if [ ! -z "${LINUX_ROUTE_NETWORKS[*]}" ] && [ ! -z "${LINUX_ROUTE_VIA[*]}" ]
-    then
-        for (( i=0; i<${#LINUX_ROUTE_NETWORKS[*]}; i++ ))
-        do
-            if [ ! -z ${LINUX_ROUTE_NETWORKS[$i]} ] && [ ! -z ${LINUX_ROUTE_VIA[$i]} ]
-            then
-                setup_route ${LINUX_ROUTE_NETWORKS[$i]} ${LINUX_ROUTE_VIA[$i]} ${LINUX_CARD_NAMES[$i]} ${LINUX_VLANS[$i]}
-            fi
-        done
-    fi
 fi
 if [ ! -z "${LINUX_FIREWALL}" ]
 then
