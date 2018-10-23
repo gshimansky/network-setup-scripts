@@ -142,6 +142,8 @@ establish_forwarding()
 {
     echo SETTING UP FORWARDING FROM $1 TO $2
     sysctl -w net.ipv4.ip_forward=1
+    sysctl -w net.ipv6.conf.default.forwarding=1
+    sysctl -w net.ipv6.conf.all.forwarding=1
     if ! iptables -t nat -C POSTROUTING -o $2 -j MASQUERADE
     then
         iptables -t nat -A POSTROUTING -o $2 -j MASQUERADE
