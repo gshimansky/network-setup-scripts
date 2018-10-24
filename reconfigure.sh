@@ -219,3 +219,5 @@ then
         echo LINUX_FIREWALL works only when LINUX_CARD_NAMES has two cards
     fi
 fi
+sudo systemctl restart docker.service
+
