@@ -92,11 +92,12 @@ add_network_config()
     then
         WIPE="${cardname} ${cardname}-nff-go"
         CONNAME="${cardname}-nff-go"
+        TYPE="ethernet ifname ${cardname}"
     else
         WIPE="${cardname}-nff-go.${vlantag}"
         CONNAME="${cardname}-nff-go.${vlantag}"
         MSG="${MSG} AND ID ${vlantag}"
-        MTU="mtu 1496"
+        TYPE="vlan dev ${cardname} id ${vlantag} mtu 1496"
     fi
 
     if [ ! -z "${route4}" ] && [ ! -z "${via4}" ]
@@ -111,7 +112,7 @@ add_network_config()
 
     echo ADDING ETHERNET CONFIG FOR ${cardname} ${MSG}
     wipe_configs ${WIPE}
-    eval nmcli c add type ethernet ifname ${cardname} con-name ${CONNAME} ${IPv4_ADDR} ${IPv6_ADDR} "${ROUTE4}" "${ROUTE6}" ${MTU}
+    eval nmcli c add type ${TYPE} con-name ${CONNAME} ${IPv4_ADDR} ${IPv6_ADDR} "${ROUTE4}" "${ROUTE6}"
 }
 
 bring_up_interface()
