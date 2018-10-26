@@ -205,19 +205,10 @@ then
     done
     clean_trash
 fi
-if [ ! -z "${LINUX_FIREWALL}" ]
-then
-    if  (( ${#LINUX_CARD_NAMES[*]} == 2 ))
-    then
-        if [ -z "${LINUX_VLANS[*]}" ]
-        then
-            establish_forwarding ${LINUX_CARD_NAMES[0]} ${LINUX_CARD_NAMES[1]}
-        else
-            establish_forwarding ${LINUX_CARD_NAMES[0]}.${LINUX_VLANS[0]} ${LINUX_CARD_NAMES[1]}.${LINUX_VLANS[1]}
-        fi
-    else
-        echo LINUX_FIREWALL works only when LINUX_CARD_NAMES has two cards
-    fi
-fi
-sudo systemctl restart docker.service
 
+for (( i=0; i<${#LINUX_FIREWALL[*]}; i+=2 ))
+do
+    establish_forwarding ${LINUX_FIREWALL[$i]} ${LINUX_CARD_NAMES[$i+1]}
+done
+
+sudo systemctl restart docker.service
