@@ -24,6 +24,7 @@ bindports ()
     if ! lsmod | grep -q igb_uio; then
         modprobe uio
         insmod "${DPDK_DIR}"/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
+        insmod "${DPDK_DIR}"/x86_64-native-linuxapp-gcc/kmod/rte_kni.ko
     fi
     "${DPDK_DIR}"/usertools/dpdk-devbind.py --bind=igb_uio ${@}
 }
