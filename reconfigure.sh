@@ -200,7 +200,10 @@ then
         then
             add_network_config "${LINUX_CARD_NAMES[$i]}" "${LINUX_NETMASKS[$i]}" "${LINUX_NETMASKS_V6[$i]}" "${LINUX_VLANS[$i]}" "${LINUX_ROUTE_NETWORKS[$i]}" "${LINUX_ROUTE_VIA[$i]}" "${LINUX_ROUTE_NETWORKS_V6[$i]}" "${LINUX_ROUTE_VIA_V6[$i]}"
         fi
-        unbindports ${LINUX_CARD_IDS[$i]}
+        if [ ! -z "${LINUX_CARD_IDS[$i]}" ]
+        then
+               unbindports ${LINUX_CARD_IDS[$i]}
+        fi
         if [ ! -z "${LINUX_NETMASKS[$i]}" ]
         then
             bring_up_interface "${LINUX_CARD_NAMES[$i]}" "${LINUX_VLANS[$i]}"
@@ -211,7 +214,7 @@ fi
 
 for (( i=0; i<${#LINUX_FIREWALL[*]}; i+=2 ))
 do
-    establish_forwarding ${LINUX_FIREWALL[$i]} ${LINUX_CARD_NAMES[$i+1]}
+    establish_forwarding ${LINUX_FIREWALL[$i]} ${LINUX_FIREWALL[$i+1]}
 done
 
 sudo systemctl restart docker.service
