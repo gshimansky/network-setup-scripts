@@ -212,9 +212,12 @@ then
     clean_trash
 fi
 
-for (( i=0; i<${#LINUX_FIREWALL[*]}; i+=2 ))
-do
-    establish_forwarding ${LINUX_FIREWALL[$i]} ${LINUX_FIREWALL[$i+1]}
-done
+if [ ! -z "${LINUX_FIREWALL}" ]
+then
+    for (( i=0; i<${#LINUX_FIREWALL[*]}; i+=2 ))
+    do
+        establish_forwarding ${LINUX_FIREWALL[$i]} ${LINUX_FIREWALL[$i+1]}
+    done
+fi
 
 sudo systemctl restart docker.service
