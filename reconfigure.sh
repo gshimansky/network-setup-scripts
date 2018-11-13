@@ -148,6 +148,7 @@ establish_forwarding()
     sysctl -w net.ipv4.ip_forward=1
     sysctl -w net.ipv6.conf.default.forwarding=1
     sysctl -w net.ipv6.conf.all.forwarding=1
+
     if ! iptables -t nat -C POSTROUTING -o $2 -j MASQUERADE
     then
         iptables -t nat -A POSTROUTING -o $2 -j MASQUERADE
@@ -159,6 +160,19 @@ establish_forwarding()
     if ! iptables -C FORWARD -i $1 -o $2 -j ACCEPT
     then
         iptables -A FORWARD -i $1 -o $2 -j ACCEPT
+    fi
+
+    if ! ip6tables -t nat -C POSTROUTING -o $2 -j MASQUERADE
+    then
+        ip6tables -t nat -A POSTROUTING -o $2 -j MASQUERADE
+    fi
+    if ! ip6tables -C FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    then
+        ip6tables -A FORWARD -i $2 -o $1 -m state --state RELATED,ESTABLISHED -j ACCEPT
+    fi
+    if ! ip6tables -C FORWARD -i $1 -o $2 -j ACCEPT
+    then
+        ip6tables -A FORWARD -i $1 -o $2 -j ACCEPT
     fi
 }
 
@@ -191,7 +205,7 @@ then
 fi
 
 # Configure linux interfaces
-if [ ! -z "${LINUX_CARD_IDS[*]}" ] && [ ! -z "${#LINUX_CARD_NAMES[*]}" ] && [ ! -z "${LINUX_DRIVER}" ]
+if [ ! -z "${#LINUX_CARD_NAMES[*]}" ] && [ ! -z "${LINUX_DRIVER}" ]
 then
     clean_trash
     for (( i=0; i<${#LINUX_CARD_NAMES[*]}; i++ ))
