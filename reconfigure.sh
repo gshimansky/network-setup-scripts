@@ -15,13 +15,14 @@ check_env()
 
 bindports ()
 {
+    MODULE_PATH="${DPDK_DIR}/x86_64-native-linuxapp-gcc-install/lib/modules/$(uname -r)/extra/dpdk"
     echo BINDING CARDS ${@}
     if ! lsmod | grep -q igb_uio; then
         modprobe uio
-        insmod "${DPDK_DIR}"/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko
+        insmod "${MODULE_PATH}"/igb_uio.ko
     fi
     if ! lsmod | grep -q rte_kni; then
-        insmod "${DPDK_DIR}"/x86_64-native-linuxapp-gcc/kmod/rte_kni.ko
+        insmod "${MODULE_PATH}"/rte_kni.ko
     fi
     "${DPDK_DIR}"/usertools/dpdk-devbind.py --bind=igb_uio ${@}
 }
