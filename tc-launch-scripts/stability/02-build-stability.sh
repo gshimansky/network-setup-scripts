@@ -11,6 +11,7 @@ export HTTPS_PROXY=$https_proxy
 export VM_NAME=tctestvms
 export VM_TOTAL_NUMBER=3
 
+(cd /localdisk/tc_agent/vagrant; vagrant reload)
 $(cd /localdisk/tc_agent/vagrant; ./getports.sh 2375)
 rc=$?
 if [ $rc != 0 ]; then exit 1; fi
