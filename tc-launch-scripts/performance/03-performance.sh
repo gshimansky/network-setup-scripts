@@ -16,6 +16,6 @@ ssh antsatel05.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/re
 echo MACHINE 2
 ssh antsatel06.an.intel.com sudo -E /localdisk/gashiman/network-setup-scripts/reconfigure.sh /localdisk/gashiman/network-setup-scripts/an/dpdk/all.sh
 
-export NFF_GO_HOSTS=antsatel05.an.intel.com:2375,antsatel04.an.intel.com:2375
+export NFF_GO_HOSTS=antsatel06.an.intel.com:2375,antsatel05.an.intel.com:2375,antsatel04.an.intel.com:2375
 cd test/framework/main
 ./tf -directory perfresults -var INPORT1=1 -var OUTPORT1_1=1 -var OUTPORT1_2=1 -var PKTGENPORT=[1:2-3].0 -config perf.json -hosts $NFF_GO_HOSTS
