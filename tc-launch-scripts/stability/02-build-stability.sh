@@ -16,5 +16,7 @@ $(cd /localdisk/tc_agent/vagrant; ./getports.sh 2375)
 rc=$?
 if [ $rc != 0 ]; then exit 1; fi
 
+go mod download
 make -j16 cleanall
-make -j16 deploy
+make -j16
+make -j1 deploy

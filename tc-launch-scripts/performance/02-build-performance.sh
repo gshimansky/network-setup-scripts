@@ -10,5 +10,7 @@ export HTTP_PROXY=$http_proxy
 export HTTPS_PROXY=$https_proxy
 
 export NFF_GO_HOSTS=antsatel04.an.intel.com:2375,antsatel05.an.intel.com:2375,antsatel06.an.intel.com:2375
+go mod download
 make -j16 cleanall
-make -j16 deploy
+make -j16
+make -j1 deploy

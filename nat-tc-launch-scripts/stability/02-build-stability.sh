@@ -18,5 +18,6 @@ if [ $rc != 0 ]; then exit 1; fi
 
 . ./env.sh
 go mod download
-make cleanall
-make deploy
+make -j16 cleanall
+make -j16
+make -j1 deploy
